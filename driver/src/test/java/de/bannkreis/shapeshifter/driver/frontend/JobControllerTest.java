@@ -1,5 +1,8 @@
-package de.bannkreis.shapeshifter.driver.controllers.controllers;
+package de.bannkreis.shapeshifter.driver.frontend;
 
+import de.bannkreis.shapeshifter.driver.frontend.controllers.JobController;
+import de.bannkreis.shapeshifter.driver.frontend.entities.JobRepository;
+import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartRequest;
 import de.bannkreis.shapeshifter.driver.jobengine.RunningJobsManager;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import org.junit.Test;
@@ -19,13 +22,17 @@ public class JobControllerTest {
 
         // GIVEN
         RunningJobsManager runningJobsManager = Mockito.mock(RunningJobsManager.class);
+        JobStartRequest jobStart = new JobStartRequest();
+        JobRepository jobRepository = new JobRepository();
+        jobRepository.setUrl("http://project.uri");
+        jobStart.setRepository(jobRepository);
 
         // WHEN
         JobController jobController = new JobController(runningJobsManager);
-        jobController.startJob("http://project.uri", "http://library.uri");
+        jobController.startJob(jobStart);
 
         // THEN
-        JobRun jobRun = new JobRun("http://project.uri", "http://library.uri");
+        JobRun jobRun = new JobRun("http://project.uri");
         Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(jobRun));
 
     }

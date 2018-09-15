@@ -5,23 +5,19 @@ import java.util.UUID;
 
 public class JobRun {
 
-    private final String gitJobLibraryUrl;
     private String gitProjectUrl;
     private UUID id;
+    private JobRunState state;
 
-    public JobRun(String gitProjectUrl, String gitJobLibraryUrl) {
+    public JobRun(String gitProjectUrl) {
         this.id = UUID.randomUUID();
         this.gitProjectUrl = gitProjectUrl;
-        this.gitJobLibraryUrl = gitJobLibraryUrl;
     }
 
     public UUID getId() {
         return id;
     }
 
-    public String getGitJobLibraryUrl() {
-        return gitJobLibraryUrl;
-    }
 
     public String getGitProjectUrl() {
         return gitProjectUrl;
@@ -32,12 +28,11 @@ public class JobRun {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         JobRun jobRun = (JobRun) o;
-        return Objects.equals(gitJobLibraryUrl, jobRun.gitJobLibraryUrl) &&
-                Objects.equals(gitProjectUrl, jobRun.gitProjectUrl);
+        return Objects.equals(gitProjectUrl, jobRun.gitProjectUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(gitJobLibraryUrl, gitProjectUrl);
+        return Objects.hash(gitProjectUrl);
     }
 }
