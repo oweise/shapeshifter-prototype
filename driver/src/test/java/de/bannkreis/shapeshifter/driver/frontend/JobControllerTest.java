@@ -26,13 +26,14 @@ public class JobControllerTest {
         JobRepository jobRepository = new JobRepository();
         jobRepository.setUrl("http://project.uri");
         jobStart.setRepository(jobRepository);
+        jobStart.setRef("refs/heads/master");
 
         // WHEN
         JobController jobController = new JobController(runningJobsManager);
         jobController.startJob(jobStart);
 
         // THEN
-        JobRun jobRun = new JobRun("http://project.uri");
+        JobRun jobRun = new JobRun("http://project.uri", "refs/heads/master");
         Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(jobRun));
 
     }

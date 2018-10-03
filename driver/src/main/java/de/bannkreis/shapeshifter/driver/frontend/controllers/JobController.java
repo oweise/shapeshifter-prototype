@@ -22,7 +22,10 @@ public class JobController {
 
     @PostMapping
     public JobStartResponse startJob(@RequestBody JobStartRequest jobStart) {
-        JobRun run = new JobRun(jobStart.getRepository().getUrl());
+        JobRun run = new JobRun(
+                jobStart.getRepository().getUrl(),
+                jobStart.getRef()
+        );
         runningJobsManager.addJobRun(run);
         return new JobStartResponse().jobId(run.getId());
     }

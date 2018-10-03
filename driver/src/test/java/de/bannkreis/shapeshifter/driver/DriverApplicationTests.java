@@ -60,7 +60,7 @@ public class DriverApplicationTests {
 		assertEquals(200, response.getStatusCodeValue());
 		assertNotNull(response.getBody());
 		assertNotNull(response.getBody().getNewJobId());
-		JobRun expectedJobRun = new JobRun("git@example.com:mike/diaspora.git");
+		JobRun expectedJobRun = new JobRun("git@example.com:mike/diaspora.git", "refs/heads/master");
 		Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(expectedJobRun));
 
 
