@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -28,7 +29,7 @@ public class JobScheduler {
     }
 
     @Scheduled(fixedRate = 10000)
-    public void scheduleJobs() {
+    public void scheduleJobs() throws IOException {
 
         for (UUID jobId : runningJobsManager.getRunningJobIds()) {
             JobRun jobRun = runningJobsManager.getJobRun(jobId);

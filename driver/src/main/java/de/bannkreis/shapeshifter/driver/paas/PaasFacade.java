@@ -10,4 +10,5 @@ public interface PaasFacade {
 
     public Optional<PaasBuild> getBuild(JobRun jobRun, JobRunState jobRunState) throws IOException;
 
+    PaasBuild createBuild(JobRun jobRun);
 }

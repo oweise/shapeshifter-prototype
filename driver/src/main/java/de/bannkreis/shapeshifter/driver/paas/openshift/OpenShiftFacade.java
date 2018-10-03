@@ -59,4 +59,9 @@ public class OpenShiftFacade implements PaasFacade {
         }
 
     }
+
+    @Override
+    public PaasBuild createBuild(JobRun jobRun) {
+        return null;
+    }
 }
