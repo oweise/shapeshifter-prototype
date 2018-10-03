@@ -35,4 +35,12 @@ public class JobRun {
     public int hashCode() {
         return Objects.hash(gitProjectUrl);
     }
+
+    public JobRunState getState() {
+        return state;
+    }
+
+    public void setState(JobRunState state) {
+        this.state = state;
+    }
 }

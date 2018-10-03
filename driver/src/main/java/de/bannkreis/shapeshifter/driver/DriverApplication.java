@@ -1,10 +1,17 @@
 package de.bannkreis.shapeshifter.driver;
 
+import de.bannkreis.shapeshifter.driver.jobengine.JobRunProcessor;
 import de.bannkreis.shapeshifter.driver.jobengine.JobScheduler;
 import de.bannkreis.shapeshifter.driver.jobengine.RunningJobsManager;
+import de.bannkreis.shapeshifter.driver.paas.PaasFacade;
+import de.bannkreis.shapeshifter.driver.paas.openshift.OpenShiftFacade;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
@@ -16,12 +23,8 @@ public class DriverApplication {
 	}
 
 	@Bean
-	public RunningJobsManager runningJobsManager() {
-		return new RunningJobsManager();
-	}
-
-	@Bean
-	public JobScheduler jobScheduler(RunningJobsManager runningJobsManager) {
-		return new JobScheduler(runningJobsManager);
+	@Lazy(true)
+	public PaasFacade paasFacade(OpenShiftFacade openShiftFacade) {
+		return openShiftFacade;
 	}
 }
