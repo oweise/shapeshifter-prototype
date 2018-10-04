@@ -3,7 +3,7 @@ package de.bannkreis.shapeshifter.driver.jobengine.entities;
 import java.util.ArrayList;
 import java.util.List;
 
-public class JobStep {
+public class BuildStep {
 
     private String name;
     private String image;

@@ -1,14 +1,15 @@
 package de.bannkreis.shapeshifter.driver;
 
-import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartRequest;
 import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartResponse;
+import de.bannkreis.shapeshifter.driver.jobengine.JobManager;
 import de.bannkreis.shapeshifter.driver.jobengine.RunningJobsManager;
+import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -23,6 +24,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -39,9 +41,21 @@ public class DriverApplicationTests {
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
+	@Autowired
+	private JobManager jobManager;
+
 	@Test
 	public void contextLoads() {
 	}
+
+	@Before
+    public void setup() {
+	    Job job = new Job();
+	    job.setName("thatjob");
+	    job.setGitUrlPattern("\\Qhttps://github.com/oweise/shapeshifter-prototype.git\\E");
+	    job.setGitRefPattern("\\Qrefs/heads/master\\E");
+	    jobManager.addJob(job);
+    }
 
 	@Test
 	public void shouldScheduleJob() throws URISyntaxException, IOException {
@@ -52,15 +66,15 @@ public class DriverApplicationTests {
  		headers.setContentType(MediaType.APPLICATION_JSON);
 		HttpEntity<String> httpEntity = new HttpEntity<>(json, headers);
 		ResponseEntity<JobStartResponse> response = testRestTemplate.postForEntity(
-				String.format("http://localhost:%d/jobs", port),
+				String.format("http://localhost:%d/webhooks", port),
 				httpEntity,
 				JobStartResponse.class);
 
 		// THEN
 		assertEquals(200, response.getStatusCodeValue());
 		assertNotNull(response.getBody());
-		assertNotNull(response.getBody().getNewJobId());
-		JobRun expectedJobRun = new JobRun("git@example.com:mike/diaspora.git", "refs/heads/master");
+		assertNotNull(response.getBody().getNewJobRunIds());
+		JobRun expectedJobRun = new JobRun(UUID.randomUUID(), "https://github.com/oweise/shapeshifter-prototype.git", "refs/heads/master");
 		Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(expectedJobRun));
 
 

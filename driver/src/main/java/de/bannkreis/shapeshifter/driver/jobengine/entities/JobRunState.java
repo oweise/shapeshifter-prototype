@@ -1,13 +1,13 @@
 package de.bannkreis.shapeshifter.driver.jobengine.entities;
 
 public class JobRunState {
-    private String stepName;
+    private String buildStepName;
 
-    public String getStepName() {
-        return stepName;
+    public String getBuildStepName() {
+        return buildStepName;
     }
 
-    public void setStepName(String stepName) {
-        this.stepName = stepName;
+    public void setBuildStepName(String buildStepName) {
+        this.buildStepName = buildStepName;
     }
 }

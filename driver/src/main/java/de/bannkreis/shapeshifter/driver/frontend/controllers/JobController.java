@@ -1,12 +1,10 @@
 package de.bannkreis.shapeshifter.driver.frontend.controllers;
 
-import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartRequest;
-import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartResponse;
-import de.bannkreis.shapeshifter.driver.jobengine.RunningJobsManager;
-import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
+import de.bannkreis.shapeshifter.driver.jobengine.JobManager;
+import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,26 +12,26 @@ import java.util.stream.Collectors;
 @RequestMapping(value="/jobs",consumes = "application/json", produces="application/json")
 public class JobController {
 
-    private final RunningJobsManager runningJobsManager;
+    private final JobManager jobManager;
 
-    public JobController(RunningJobsManager runningJobsManager) {
-        this.runningJobsManager = runningJobsManager;
+    public JobController(JobManager jobManager) {
+        this.jobManager = jobManager;
     }
 
     @PostMapping
-    public JobStartResponse startJob(@RequestBody JobStartRequest jobStart) {
-        JobRun run = new JobRun(
-                jobStart.getRepository().getUrl(),
-                jobStart.getRef()
-        );
-        runningJobsManager.addJobRun(run);
-        return new JobStartResponse().jobId(run.getId());
+    public Job postJob(@RequestBody  Job job) {
+        jobManager.addJob(job);
+        return job;
     }
 
     @GetMapping
-    public Set<String> getRunningJobIds() {
-        return runningJobsManager.getRunningJobIds()
-                .stream().map(UUID::toString).collect(Collectors.toSet());
+    public List<String> getJobIds() {
+        return jobManager.getJobIds().stream().map(UUID::toString).collect(Collectors.toList());
+    }
+
+    @GetMapping(path="/{jobId}")
+    public Job getJob(@PathVariable("jobId") String jobId) {
+        return jobManager.getJob(UUID.fromString(jobId));
     }
 
 }

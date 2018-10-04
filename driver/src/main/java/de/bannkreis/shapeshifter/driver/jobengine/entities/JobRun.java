@@ -5,6 +5,21 @@ import java.util.UUID;
 
 public class JobRun {
 
+    public UUID getJobId() {
+        return jobId;
+    }
+
+    private final UUID jobId;
+
+    public BuildDefinition getBuildDefinition() {
+        return buildDefinition;
+    }
+
+    public void setBuildDefinition(BuildDefinition buildDefinition) {
+        this.buildDefinition = buildDefinition;
+    }
+
+    private BuildDefinition buildDefinition;
     private String gitProjectUrl;
     private String gitProjectRef;
     private UUID id;
@@ -24,8 +39,9 @@ public class JobRun {
         return Objects.hash(gitProjectUrl, gitProjectRef);
     }
 
-    public JobRun(String gitProjectUrl, String gitProjectRef) {
+    public JobRun(UUID jobId, String gitProjectUrl, String gitProjectRef) {
         this.id = UUID.randomUUID();
+        this.jobId = jobId;
         this.gitProjectUrl = gitProjectUrl;
         this.gitProjectRef = gitProjectRef;
     }

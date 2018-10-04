@@ -6,9 +6,7 @@ import de.bannkreis.shapeshifter.driver.paas.PaasBuild;
 import de.bannkreis.shapeshifter.driver.paas.PaasFacade;
 import io.fabric8.openshift.api.model.Build;
 import io.fabric8.openshift.api.model.BuildConfig;
-import io.fabric8.openshift.client.DefaultOpenShiftClient;
 import io.fabric8.openshift.client.OpenShiftClient;
-import io.fabric8.openshift.client.dsl.BuildResource;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
@@ -40,7 +38,7 @@ public class OpenShiftFacade implements PaasFacade {
         OpenShiftClient osClient = openShiftClientProvider.createClient();
         Optional<BuildConfig> buildConfig = osClient.buildConfigs()
                 .withLabel(LABEL_JOBID, jobRun.getId().toString())
-                .withLabel(LABEL_JOBSTEP, jobRunState.getStepName())
+                .withLabel(LABEL_JOBSTEP, jobRunState.getBuildStepName())
                 .list().getItems().stream().findFirst();
 
         if (buildConfig.isPresent()) {

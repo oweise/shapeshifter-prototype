@@ -1,7 +1,5 @@
 package de.bannkreis.shapeshifter.driver.jobengine;
 
-import de.bannkreis.shapeshifter.driver.jobengine.entities.JobDefinition;
-import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -17,12 +15,12 @@ import java.util.stream.Collectors;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class BuildFileRetriever {
+public class BuildDefinitionCodeRetriever {
 
-    public BuildFileRetriever() {
+    public BuildDefinitionCodeRetriever() {
     }
 
-    public String retrieveBuildFileCode(String gitUri, String gitRef, String commit) throws IOException, GitAPIException {
+    public String retrieveBuildDefinitionCode(String buildFilePath, String gitUri, String gitRef, String commit) throws IOException, GitAPIException {
 
         File tempCheckoutDir = File.createTempFile("shashi", ".tmp");
         tempCheckoutDir.delete();
@@ -35,10 +33,10 @@ public class BuildFileRetriever {
                 .setNoCheckout(true)
                 .call();
 
-        gitRepo.checkout().setStartPoint(commit).addPath("demo-project/shashi.yml").call();
+        gitRepo.checkout().setStartPoint(commit).addPath(buildFilePath).call();
         gitRepo.getRepository().close();
 
-        File shashiFile = new File(tempCheckoutDir, "demo-project/shashi.yml");
+        File shashiFile = new File(tempCheckoutDir, buildFilePath);
         String shashiCode = Files.readAllLines(Paths.get(shashiFile.toURI()), Charset.forName("UTF-8"))
                 .stream().collect(Collectors.joining("\n"));
 
