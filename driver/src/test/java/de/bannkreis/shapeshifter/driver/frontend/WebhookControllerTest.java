@@ -1,8 +1,8 @@
 package de.bannkreis.shapeshifter.driver.frontend;
 
-import de.bannkreis.shapeshifter.driver.frontend.controllers.WebhookController;
 import de.bannkreis.shapeshifter.driver.frontend.entities.JobRepository;
 import de.bannkreis.shapeshifter.driver.frontend.entities.Webhook;
+import de.bannkreis.shapeshifter.driver.frontend.ollers.WebhookController;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import de.bannkreis.shapeshifter.driver.jobengine.WebhookProcessor;
 import org.junit.Test;

@@ -1,0 +1,8 @@
+---
+libs:
+- https://github.com/oweise/shapeshifter-prototype.git/demo-lib
+steps:
+- name: Do something
+  image: basic
+  cmd:
+  - dosomething.sh

@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: BuildConfig
+metadata:
+  annotations:
+    openshift.io/generated-by: OpenShiftNewBuild
+  creationTimestamp: 2018-10-07T15:16:56Z
+  labels:
+    build: shapeshifter-prototype
+  name: shapeshifter-prototype
+  namespace: shapeshifter
+  resourceVersion: "49670"
+  selfLink: /oapi/v1/namespaces/shapeshifter/buildconfigs/shapeshifter-prototype
+  uid: 079f60a3-ca44-11e8-9c6c-08002753da7e
+spec:
+  failedBuildsHistoryLimit: 5
+  nodeSelector: null
+  output:
+    to:
+      kind: ImageStreamTag
+      name: shapeshifter-prototype:latest
+  postCommit: {}
+  resources: {}
+  runPolicy: Serial
+  source:
+    contextDir: buildimage
+    git:
+      ref: master
+      uri: https://github.com/oweise/shapeshifter-prototype.git
+    type: Git
+  strategy:
+    dockerStrategy:
+      from:
+        kind: ImageStreamTag
+        name: centos:latest
+    type: Docker
+  successfulBuildsHistoryLimit: 5
+  triggers:
+  - github:
+      secret: Ynu-ARnqafIc8ES5tDXh
+    type: GitHub
+  - generic:
+      secret: s8nph_rzTMPqUYK1ThLS
+    type: Generic
+  - type: ConfigChange
+  - imageChange:
+      lastTriggeredImageID: centos@sha256:fc2476ccae2a5186313f2d1dadb4a969d6d2d4c6b23fa98b6c7b0a1faad67685
+    type: ImageChange
+status:
+  lastVersion: 2

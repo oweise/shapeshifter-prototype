@@ -1,6 +1,7 @@
 package de.bannkreis.shapeshifter.driver.jobengine;
 
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -29,7 +30,7 @@ public class JobScheduler {
     }
 
     @Scheduled(fixedRate = 10000)
-    public void scheduleJobs() throws IOException {
+    public void scheduleJobs() throws IOException, GitAPIException {
 
         for (UUID jobId : runningJobsManager.getRunningJobIds()) {
             JobRun jobRun = runningJobsManager.getJobRun(jobId);

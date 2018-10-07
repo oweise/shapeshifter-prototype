@@ -1,6 +1,7 @@
 package de.bannkreis.shapeshifter.driver.jobengine;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.BuildDefinition;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
@@ -15,25 +16,25 @@ import java.io.IOException;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class BuildDefinitionRetriever {
 
-    private final BuildDefinitionCodeRetriever buildDefinitionCodeRetriever;
+    private final GitSingleFileCodeRetriever gitSingleFileCodeRetriever;
     private final JobManager jobManager;
 
-    public BuildDefinitionRetriever(BuildDefinitionCodeRetriever buildDefinitionCodeRetriever, JobManager jobManager) {
+    public BuildDefinitionRetriever(GitSingleFileCodeRetriever gitSingleFileCodeRetriever, JobManager jobManager) {
         this.jobManager = jobManager;
-        this.buildDefinitionCodeRetriever = buildDefinitionCodeRetriever;
+        this.gitSingleFileCodeRetriever = gitSingleFileCodeRetriever;
     }
 
     public BuildDefinition retrieveBuildDefinition(JobRun jobRun) throws IOException, GitAPIException {
 
         Job job = jobManager.getJob(jobRun.getJobId());
 
-        String buildDefinitionCode = this.buildDefinitionCodeRetriever.retrieveBuildDefinitionCode(
+        String buildDefinitionCode = this.gitSingleFileCodeRetriever.retrieveCode(
                 job.getBuildFilePath(),
                 jobRun.getGitProjectUrl(),
                 jobRun.getGitProjectRef(),
                 "HEAD");
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
         return objectMapper.readValue(buildDefinitionCode, BuildDefinition.class);
     }
 

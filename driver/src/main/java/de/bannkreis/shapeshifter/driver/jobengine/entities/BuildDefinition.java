@@ -1,5 +1,7 @@
 package de.bannkreis.shapeshifter.driver.jobengine.entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,6 +9,8 @@ import java.util.List;
 public class BuildDefinition {
 
     private List<URI> libs = new ArrayList<>();
+
+    @JsonProperty("steps")
     private List<BuildStep> buildSteps = new ArrayList<>();
 
     public List<BuildStep> getBuildSteps() {

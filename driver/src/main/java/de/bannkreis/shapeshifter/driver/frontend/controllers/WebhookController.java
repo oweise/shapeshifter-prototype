@@ -1,4 +1,4 @@
-package de.bannkreis.shapeshifter.driver.frontend.controllers;
+package de.bannkreis.shapeshifter.driver.frontend.ollers;
 
 import de.bannkreis.shapeshifter.driver.frontend.entities.Webhook;
 import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartResponse;
