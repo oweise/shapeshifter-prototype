@@ -74,7 +74,8 @@ public class DriverApplicationTests {
 		assertEquals(200, response.getStatusCodeValue());
 		assertNotNull(response.getBody());
 		assertNotNull(response.getBody().getNewJobRunIds());
-		JobRun expectedJobRun = new JobRun(UUID.randomUUID(), "https://github.com/oweise/shapeshifter-prototype.git", "refs/heads/master");
+		JobRun expectedJobRun = new JobRun(UUID.randomUUID(), "https://github.com/oweise/shapeshifter-prototype.git",
+				"refs/heads/master", "da1560886d4f094c3e6c9ef40349f7d38b5d27d7");
 		Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(expectedJobRun));
 
 

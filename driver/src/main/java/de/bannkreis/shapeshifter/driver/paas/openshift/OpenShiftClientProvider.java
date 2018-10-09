@@ -22,14 +22,13 @@ public class OpenShiftClientProvider {
         this.openShiftInformationReader = openShiftInformationReader;
     }
 
-    public OpenShiftClient createClient() throws IOException {
-
-        OpenShiftInformation openShiftInformation = openShiftInformationReader.readOpenShiftInformation();
+    public OpenShiftClient createClient(OpenShiftInformation openShiftInformation) throws IOException {
 
         Config config = new ConfigBuilder()
-                .withMasterUrl("https://kubernetes.default/api/v1")
+                .withMasterUrl("https://kubernetes.default")
+                //.withMasterUrl("https://192.168.99.100:8443")
                 .withUsername(openShiftInformation.getSaToken())
-                .withCaCertData(openShiftInformation.getCa())
+                //.withCaCertData(openShiftInformation.getCa())
                 .withNamespace(openShiftInformation.getNamespace())
                 .build();
 

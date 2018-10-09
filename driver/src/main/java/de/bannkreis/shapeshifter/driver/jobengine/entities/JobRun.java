@@ -5,6 +5,12 @@ import java.util.UUID;
 
 public class JobRun {
 
+    public String getGitCommit() {
+        return gitCommit;
+    }
+
+    private final String gitCommit;
+
     public UUID getJobId() {
         return jobId;
     }
@@ -23,7 +29,7 @@ public class JobRun {
     private String gitProjectUrl;
     private String gitProjectRef;
     private UUID id;
-    private JobRunState state;
+    private JobRunState state = new JobRunState();
 
     @Override
     public boolean equals(Object o) {
@@ -39,11 +45,12 @@ public class JobRun {
         return Objects.hash(gitProjectUrl, gitProjectRef);
     }
 
-    public JobRun(UUID jobId, String gitProjectUrl, String gitProjectRef) {
+    public JobRun(UUID jobId, String gitProjectUrl, String gitProjectRef, String gitCommit) {
         this.id = UUID.randomUUID();
         this.jobId = jobId;
         this.gitProjectUrl = gitProjectUrl;
         this.gitProjectRef = gitProjectRef;
+        this.gitCommit = gitCommit;
     }
 
     public UUID getId() {

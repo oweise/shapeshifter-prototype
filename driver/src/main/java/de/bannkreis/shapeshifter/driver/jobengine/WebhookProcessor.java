@@ -42,7 +42,8 @@ public class WebhookProcessor {
             JobRun run = new JobRun(
                     job.getId(),
                     webhook.getRepository().getUrl(),
-                    webhook.getRef()
+                    webhook.getRef(),
+                    webhook.getCheckoutSha()
             );
 
             runningJobsManager.addJobRun(run);

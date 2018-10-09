@@ -13,6 +13,17 @@ public class Webhook {
 
     private JobProject project;
 
+    public String getCheckoutSha() {
+        return checkoutSha;
+    }
+
+    public void setCheckoutSha(String checkoutSha) {
+        this.checkoutSha = checkoutSha;
+    }
+
+    @JsonProperty("checkout_sha")
+    private String checkoutSha;
+
     @JsonProperty("repository")
     private JobRepository repository;
 

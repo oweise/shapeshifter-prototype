@@ -32,7 +32,7 @@ public class BuildDefinitionRetriever {
                 job.getBuildFilePath(),
                 jobRun.getGitProjectUrl(),
                 jobRun.getGitProjectRef(),
-                "HEAD");
+                jobRun.getGitCommit());
 
         ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
         return objectMapper.readValue(buildDefinitionCode, BuildDefinition.class);

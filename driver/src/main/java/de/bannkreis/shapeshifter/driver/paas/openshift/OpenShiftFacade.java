@@ -28,22 +28,30 @@ public class OpenShiftFacade implements PaasFacade {
 
     private final OpenShiftClientProvider openShiftClientProvider;
 
-    public OpenShiftFacade(OpenShiftClientProvider openShiftClientProvider) throws IOException {
+    private final OpenShiftInformationReader openShiftInformationReader;
+
+    public OpenShiftFacade(OpenShiftClientProvider openShiftClientProvider, OpenShiftInformationReader openShiftInformationReader) throws IOException {
         this.openShiftClientProvider = openShiftClientProvider;
+        this.openShiftInformationReader = openShiftInformationReader;
     }
 
     @Override
     public Optional<PaasBuild> getBuild(JobRun jobRun, JobRunState jobRunState) throws IOException {
 
+        OpenShiftInformation openShiftInformation = openShiftInformationReader.readOpenShiftInformation();
+
         // Find an existing build for the given job step
-        OpenShiftClient osClient = openShiftClientProvider.createClient();
+        OpenShiftClient osClient = openShiftClientProvider.createClient(openShiftInformation);
+
         Optional<BuildConfig> buildConfig = osClient.buildConfigs()
+                .inNamespace(openShiftInformation.getNamespace())
                 .withLabel(LABEL_JOBID, jobRun.getId().toString())
                 .withLabel(LABEL_JOBSTEP, jobRunState.getBuildStepName())
                 .list().getItems().stream().findFirst();
 
         if (buildConfig.isPresent()) {
             Build build = osClient.builds()
+                    .inNamespace(openShiftInformation.getNamespace())
                     .withName(String.format(
                         "%s-%s",
                         buildConfig.get().getMetadata().getName(),
@@ -63,7 +71,9 @@ public class OpenShiftFacade implements PaasFacade {
 
     public PaasBuild createBuild(JobRun jobRun) throws IOException {
 
-        OpenShiftClient osClient = openShiftClientProvider.createClient();
+        OpenShiftInformation openShiftInformation = openShiftInformationReader.readOpenShiftInformation();
+
+        OpenShiftClient osClient = openShiftClientProvider.createClient(openShiftInformation);
 
         String buildStepName = String.format("shashi-build-%s-%s",
                 jobRun.getJobId().toString(), jobRun.getId().toString());

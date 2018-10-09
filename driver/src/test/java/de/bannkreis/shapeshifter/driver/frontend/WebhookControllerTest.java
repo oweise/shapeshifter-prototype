@@ -22,13 +22,15 @@ public class WebhookControllerTest {
         jobRepository.setUrl("http://project.uri");
         jobStart.setRepository(jobRepository);
         jobStart.setRef("refs/heads/master");
+        jobStart.setCheckoutSha("da1560886d4f094c3e6c9ef40349f7d38b5d27d7");
 
         // WHEN
         WebhookController webhookController = new WebhookController(runningJobsManager);
         webhookController.receiveWebhook(jobStart);
 
         // THEN
-        JobRun jobRun = new JobRun(UUID.randomUUID(), "http://project.uri", "refs/heads/master");
+        JobRun jobRun = new JobRun(UUID.randomUUID(), "http://project.uri", "refs/heads/master",
+                "da1560886d4f094c3e6c9ef40349f7d38b5d27d7");
         Mockito.verify(runningJobsManager).processWebhook(jobStart);
 
     }
