@@ -4,8 +4,9 @@ import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRunState;
 import de.bannkreis.shapeshifter.driver.paas.PaasBuild;
 import de.bannkreis.shapeshifter.driver.paas.PaasFacade;
-import io.fabric8.openshift.api.model.Build;
-import io.fabric8.openshift.api.model.BuildConfig;
+import io.fabric8.kubernetes.api.model.EnvFromSourceBuilder;
+import io.fabric8.kubernetes.api.model.ObjectReferenceBuilder;
+import io.fabric8.openshift.api.model.*;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Lazy;
@@ -59,7 +60,42 @@ public class OpenShiftFacade implements PaasFacade {
     }
 
     @Override
-    public PaasBuild createBuild(JobRun jobRun) {
-        return null;
+
+    public PaasBuild createBuild(JobRun jobRun) throws IOException {
+
+        OpenShiftClient osClient = openShiftClientProvider.createClient();
+
+        String buildStepName = String.format("shashi-build-%s-%s",
+                jobRun.getJobId().toString(), jobRun.getId().toString());
+
+        SourceBuildStrategy sourceBuildStrategy = new SourceBuildStrategyBuilder()
+                .withFrom(
+                        new ObjectReferenceBuilder()
+                            .withKind("ImageStreamTag")
+                            .withName("shapeshifter-buildimage:latest")
+                            .build()
+                ).build();
+
+        BuildStrategy buildStrategy = new BuildStrategyBuilder()
+                .withSourceStrategy(sourceBuildStrategy)
+                .build();
+
+        String outputImageName = String.format("%s:latest", buildStepName);
+
+        BuildOutput buildOutput = new BuildOutputBuilder()
+                .withNewTo()
+                    .withKind("ImageStreamTag")
+                    .withName(outputImageName)
+                    .endTo()
+                .build();
+
+        BuildConfig buildConfig = new BuildConfigBuilder()
+                .withNewSpec()
+                    .withStrategy(buildStrategy)
+                    .withOutput(buildOutput)
+                    .endSpec()
+                .build();
+
+        return new OpenShiftBuild(buildConfig);
     }
 }

@@ -12,6 +12,9 @@
 
     <modules>
         <module>driver</module>
+        <module>demo-project</module>
+        <module>demo-lib</module>
+        <module>buildimage</module>
     </modules>
 
 

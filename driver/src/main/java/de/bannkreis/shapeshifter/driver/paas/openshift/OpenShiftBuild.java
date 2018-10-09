@@ -15,6 +15,11 @@ public class OpenShiftBuild implements PaasBuild {
         this.lastBuild = lastBuild;
     }
 
+    public OpenShiftBuild(BuildConfig buildConfig) {
+        this.buildConfig = buildConfig;
+        this.lastBuild = null;
+    }
+
     @Override
     public UUID getJobRunID() {
         return UUID.fromString(buildConfig.getMetadata().getLabels().get(OpenShiftFacade.LABEL_JOBID));

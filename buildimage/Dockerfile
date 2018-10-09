@@ -26,11 +26,10 @@ RUN curl ${MAVEN_DOWNLOAD_URL} -o /tmp/maven.tgz && \
     rm /tmp/maven.tgz
 
 ## Install OC client
-RUN curl ${OC_DOWNLOAD_URL} -o /tmp/oc.tgz && \
-    su -c "tar -zxvf /tmp/oc.tgz -C /usr/local" &&
-    ln -s
+#RUN curl ${OC_DOWNLOAD_URL} -o /tmp/oc.tgz && \
+#    su -c "tar -zxvf /tmp/oc.tgz -C /usr/local" && \
+#    ln -s
 
 RUN mkdir -p /opt/shashi && \
     mkdir -p /opt/shashi/work && \
     mkdir -p /opt/shashi/libs
-
