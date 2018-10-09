@@ -46,6 +46,7 @@ public class BuildDefinitionRetrieverTest {
         Mockito.when(jobRun.getJobId()).thenReturn(theJobId);
         Mockito.when(jobRun.getGitProjectRef()).thenReturn("refs/heads/master");
         Mockito.when(jobRun.getGitProjectUrl()).thenReturn(gitUrl);
+        Mockito.when(jobRun.getGitCommit()).thenReturn("HEAD");
 
         // WHEN
         BuildDefinitionRetriever buildDefinitionRetriever = new BuildDefinitionRetriever(gitSingleFileCodeRetriever,
@@ -59,7 +60,7 @@ public class BuildDefinitionRetrieverTest {
                 buildDefinition.getLibs().get(0));
 
         assertEquals(1, buildDefinition.getBuildSteps().size());
-        assertEquals("Do something", buildDefinition.getBuildSteps().get(0).getName());
+        assertEquals("do_something", buildDefinition.getBuildSteps().get(0).getName());
 
     }
 
