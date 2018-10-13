@@ -11,22 +11,24 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class JobRunService {
+public class JobRunManager {
 
     private ConcurrentHashMap<UUID, JobRun> runningJobs = new ConcurrentHashMap<>();
 
     private PaasFacade paasFacade;
 
-    private JobsService jobsService;
+    private JobsManager jobsManager;
 
-    public JobRunService(PaasFacade paasFacade, JobsService jobsService) {
+    public JobRunManager(PaasFacade paasFacade, JobsManager jobsManager) {
         this.paasFacade = paasFacade;
+        this.jobsManager = jobsManager;
     }
 
     public void addJobRun(JobRun run) {
@@ -37,13 +39,13 @@ public class JobRunService {
         return this.runningJobs.keySet();
     }
 
-    public JobRun getJobRun(UUID id) {
-        return runningJobs.get(id);
+    public Optional<JobRun> getJobRun(UUID id) {
+        return Optional.ofNullable(runningJobs.get(id));
     }
 
     public JobRunInfo getJobRunInfo(UUID id) throws IOException {
-        JobRun jobRun = getJobRun(id);
-        Job job = jobsService.getJob(jobRun.getJobId())
+        JobRun jobRun = getJobRun(id).orElseThrow(()-> new IllegalArgumentException("Unknown job run ID" + id.toString()));
+        Job job = jobsManager.getJob(jobRun.getJobId())
                 .orElseThrow(()->new IllegalArgumentException(("Unknown job run: " + id.toString())));
         PaasBuild paasBuild = paasFacade.getBuild(jobRun, jobRun.getState())
                 .orElseThrow(()->new IllegalArgumentException());

@@ -8,15 +8,15 @@ import java.util.UUID;
 
 public class RunningJobsResponse {
 
-    public List<UUID> getJobIds() {
-        return jobIds;
+    public List<UUID> getJobRunIds() {
+        return jobRunIds;
     }
 
-    public void setJobIds(List<UUID> jobIds) {
-        this.jobIds = jobIds;
+    public void setJobRunIds(List<UUID> jobRunIds) {
+        this.jobRunIds = jobRunIds;
     }
 
     @JsonProperty
-    private List<UUID> jobIds = new ArrayList<>();
+    private List<UUID> jobRunIds = new ArrayList<>();
 
 }

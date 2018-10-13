@@ -13,19 +13,19 @@ import java.util.regex.Pattern;
 @Component
 public class WebhookProcessor {
 
-    private final JobRunService jobRunService;
-    private final JobsService jobsService;
+    private final JobRunManager jobRunManager;
+    private final JobsManager jobsManager;
 
-    public WebhookProcessor(JobsService jobsService, JobRunService jobRunService) {
-        this.jobsService = jobsService;
-        this.jobRunService = jobRunService;
+    public WebhookProcessor(JobsManager jobsManager, JobRunManager jobRunManager) {
+        this.jobsManager = jobsManager;
+        this.jobRunManager = jobRunManager;
     }
 
     public List<UUID> processWebhook(Webhook webhook) {
 
         List<UUID> newJobRuns = new ArrayList<>();
-        for (UUID jobId : jobsService.getJobIds()) {
-            Job job = jobsService.getJob(jobId)
+        for (UUID jobId : jobsManager.getJobIds()) {
+            Job job = jobsManager.getJob(jobId)
                     .orElseThrow(()->new IllegalArgumentException());
 
             Pattern gitUrlPattern = Pattern.compile(job.getGitUrlPattern());
@@ -45,7 +45,7 @@ public class WebhookProcessor {
                     webhook.getCheckoutSha()
             );
 
-            jobRunService.addJobRun(run);
+            jobRunManager.addJobRun(run);
             newJobRuns.add(run.getId());
 
         }

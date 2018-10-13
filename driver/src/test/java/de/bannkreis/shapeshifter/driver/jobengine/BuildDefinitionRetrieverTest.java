@@ -29,8 +29,8 @@ public class BuildDefinitionRetrieverTest {
         Job job = Mockito.mock(Job.class);
         Mockito.when(job.getBuildFilePath()).thenReturn("shashi.yml");
 
-        JobsService jobsService = Mockito.mock(JobsService.class);
-        Mockito.when(jobsService.getJob(Mockito.eq(theJobId))).thenReturn(Optional.of(job));
+        JobsManager jobsManager = Mockito.mock(JobsManager.class);
+        Mockito.when(jobsManager.getJob(Mockito.eq(theJobId))).thenReturn(Optional.of(job));
 
         String buildCode = new String(
                 Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("shashi.yml").toURI())), "UTF8");
@@ -51,7 +51,7 @@ public class BuildDefinitionRetrieverTest {
 
         // WHEN
         BuildDefinitionRetriever buildDefinitionRetriever = new BuildDefinitionRetriever(gitSingleFileCodeRetriever,
-                jobsService);
+                jobsManager);
 
         BuildDefinition buildDefinition = buildDefinitionRetriever.retrieveBuildDefinition(jobRun);
 

@@ -1,8 +1,8 @@
 package de.bannkreis.shapeshifter.driver;
 
 import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartResponse;
-import de.bannkreis.shapeshifter.driver.jobengine.JobsService;
-import de.bannkreis.shapeshifter.driver.jobengine.JobRunService;
+import de.bannkreis.shapeshifter.driver.jobengine.JobsManager;
+import de.bannkreis.shapeshifter.driver.jobengine.JobRunManager;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import org.junit.AfterClass;
@@ -39,13 +39,13 @@ public class DriverApplicationTests {
 	private int port;
 
 	@MockBean
-	private JobRunService jobRunService;
+	private JobRunManager jobRunManager;
 
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
 	@Autowired
-	private JobsService jobsService;
+	private JobsManager jobsManager;
 
 	@Test
 	public void contextLoads() {
@@ -66,7 +66,7 @@ public class DriverApplicationTests {
 	    job.setName("thatjob");
 	    job.setGitUrlPattern("\\Qhttps://github.com/oweise/shapeshifter-prototype.git\\E");
 	    job.setGitRefPattern("\\Qrefs/heads/master\\E");
-	    jobsService.addJob(job);
+	    jobsManager.addJob(job);
 	}
 
 	@AfterClass
@@ -93,7 +93,7 @@ public class DriverApplicationTests {
 		assertNotNull(response.getBody().getNewJobRunIds());
 		JobRun expectedJobRun = new JobRun(UUID.randomUUID(), "https://github.com/oweise/shapeshifter-prototype.git",
 				"refs/heads/master", "da1560886d4f094c3e6c9ef40349f7d38b5d27d7");
-		Mockito.verify(jobRunService).addJobRun(Mockito.eq(expectedJobRun));
+		Mockito.verify(jobRunManager).addJobRun(Mockito.eq(expectedJobRun));
 
 
 	}

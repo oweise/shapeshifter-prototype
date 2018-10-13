@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class JobsService {
+public class JobsManager {
 
     @Value("${storagepath.jobs}")
     private String storageDirectory;
@@ -33,6 +33,7 @@ public class JobsService {
         UUID jobId = UUID.randomUUID();
         job.setId(jobId);
         jobStorage.root().getJobs().put(jobId, job);
+        this.jobStorage.store(job);
         return jobId;
     }
 
