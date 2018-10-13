@@ -1,6 +1,6 @@
 package de.bannkreis.shapeshifter.driver.frontend.controllers;
 
-import de.bannkreis.shapeshifter.driver.jobengine.JobManager;
+import de.bannkreis.shapeshifter.driver.jobengine.JobsService;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,26 +12,27 @@ import java.util.stream.Collectors;
 @RequestMapping(value="/jobs",consumes = "application/json", produces="application/json")
 public class JobController {
 
-    private final JobManager jobManager;
+    private final JobsService jobsService;
 
-    public JobController(JobManager jobManager) {
-        this.jobManager = jobManager;
+    public JobController(JobsService jobsService) {
+        this.jobsService = jobsService;
     }
 
     @PostMapping
     public Job postJob(@RequestBody  Job job) {
-        jobManager.addJob(job);
+        jobsService.addJob(job);
         return job;
     }
 
     @GetMapping
     public List<String> getJobIds() {
-        return jobManager.getJobIds().stream().map(UUID::toString).collect(Collectors.toList());
+        return jobsService.getJobIds().stream().map(UUID::toString).collect(Collectors.toList());
     }
 
     @GetMapping(path="/{jobId}")
     public Job getJob(@PathVariable("jobId") String jobId) {
-        return jobManager.getJob(UUID.fromString(jobId));
+        return jobsService.getJob(UUID.fromString(jobId))
+                .orElseThrow(()->new IllegalArgumentException());
     }
 
 }

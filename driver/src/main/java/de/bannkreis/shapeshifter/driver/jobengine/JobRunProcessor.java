@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -35,8 +36,8 @@ public class JobRunProcessor {
         }
 
         // Search for a OS build entity
-        PaasBuild paasBuild = paasFacade.getBuild(jobRun, jobRun.getState())
-                .orElse(paasFacade.createBuild(jobRun));
+        Optional<PaasBuild> paasBuildOpt = paasFacade.getBuild(jobRun, jobRun.getState());
+        PaasBuild paasBuild = paasBuildOpt.orElse(paasFacade.createBuild(jobRun));
 
         switch (paasBuild.getBuildState()) {
 
@@ -57,8 +58,8 @@ public class JobRunProcessor {
 
     }
 
-    private void startBuild(PaasBuild paasBuild) {
-
+    private void startBuild(PaasBuild paasBuild) throws IOException {
+        paasFacade.startBuild(paasBuild);
     }
 
 }

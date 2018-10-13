@@ -17,23 +17,23 @@ import java.util.concurrent.Executors;
 @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class JobScheduler {
 
-    private final RunningJobsManager runningJobsManager;
+    private final JobRunService jobRunService;
 
     private final JobRunProcessor jobRunProcessor;
 
     private Executor executor = Executors.newFixedThreadPool(10);
 
     @Autowired
-    public JobScheduler(RunningJobsManager runningJobsManager, JobRunProcessor jobRunProcessor) {
-        this.runningJobsManager = runningJobsManager;
+    public JobScheduler(JobRunService jobRunService, JobRunProcessor jobRunProcessor) {
+        this.jobRunService = jobRunService;
         this.jobRunProcessor = jobRunProcessor;
     }
 
     @Scheduled(fixedRate = 10000)
     public void scheduleJobs() throws IOException, GitAPIException {
 
-        for (UUID jobId : runningJobsManager.getRunningJobIds()) {
-            JobRun jobRun = runningJobsManager.getJobRun(jobId);
+        for (UUID jobId : jobRunService.getRunningJobIds()) {
+            JobRun jobRun = jobRunService.getJobRun(jobId);
             jobRunProcessor.processJobRun(jobRun);
         }
 

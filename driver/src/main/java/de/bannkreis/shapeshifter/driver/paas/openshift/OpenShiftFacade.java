@@ -14,6 +14,8 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @Component
@@ -45,7 +47,7 @@ public class OpenShiftFacade implements PaasFacade {
 
         Optional<BuildConfig> buildConfig = osClient.buildConfigs()
                 .inNamespace(openShiftInformation.getNamespace())
-                .withLabel(LABEL_JOBID, jobRun.getId().toString())
+                .withLabel(LABEL_JOBID, jobRun.getJobId().toString())
                 .withLabel(LABEL_JOBSTEP, jobRunState.getBuildStepName())
                 .list().getItems().stream().findFirst();
 
@@ -99,13 +101,40 @@ public class OpenShiftFacade implements PaasFacade {
                     .endTo()
                 .build();
 
+        Map<String,String> labels = new HashMap<>();
+        labels.put(LABEL_JOBID, jobRun.getJobId().toString());
+        labels.put(LABEL_JOBSTEP, jobRun.getState().getBuildStepName());
+
         BuildConfig buildConfig = new BuildConfigBuilder()
+                .withNewMetadata()
+                    .withName(buildStepName)
+                    .withLabels(labels)
+                    .endMetadata()
                 .withNewSpec()
                     .withStrategy(buildStrategy)
                     .withOutput(buildOutput)
                     .endSpec()
                 .build();
 
+        osClient.buildConfigs().create(buildConfig);
+
         return new OpenShiftBuild(buildConfig);
+    }
+
+    @Override
+    public void startBuild(PaasBuild paasBuild) throws IOException {
+
+        OpenShiftInformation openShiftInformation = openShiftInformationReader.readOpenShiftInformation();
+
+        OpenShiftBuild openShiftBuild = (OpenShiftBuild) paasBuild;
+        OpenShiftClient osClient = openShiftClientProvider.createClient(openShiftInformation);
+
+        String buildConfigName = openShiftBuild.getBuildConfig().getMetadata().getName();
+        osClient.buildConfigs().withName(buildConfigName)
+                .instantiate(new BuildRequestBuilder()
+                        .withNewMetadata()
+                            .withName(buildConfigName)
+                            .endMetadata()
+                        .build());
     }
 }

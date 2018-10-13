@@ -12,6 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -28,8 +29,8 @@ public class BuildDefinitionRetrieverTest {
         Job job = Mockito.mock(Job.class);
         Mockito.when(job.getBuildFilePath()).thenReturn("shashi.yml");
 
-        JobManager jobManager = Mockito.mock(JobManager.class);
-        Mockito.when(jobManager.getJob(Mockito.eq(theJobId))).thenReturn(job);
+        JobsService jobsService = Mockito.mock(JobsService.class);
+        Mockito.when(jobsService.getJob(Mockito.eq(theJobId))).thenReturn(Optional.of(job));
 
         String buildCode = new String(
                 Files.readAllBytes(Paths.get(ClassLoader.getSystemResource("shashi.yml").toURI())), "UTF8");
@@ -50,7 +51,7 @@ public class BuildDefinitionRetrieverTest {
 
         // WHEN
         BuildDefinitionRetriever buildDefinitionRetriever = new BuildDefinitionRetriever(gitSingleFileCodeRetriever,
-                jobManager);
+                jobsService);
 
         BuildDefinition buildDefinition = buildDefinitionRetriever.retrieveBuildDefinition(jobRun);
 

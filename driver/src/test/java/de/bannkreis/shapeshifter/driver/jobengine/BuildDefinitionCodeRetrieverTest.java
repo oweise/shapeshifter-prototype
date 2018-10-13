@@ -19,7 +19,7 @@ public class BuildDefinitionCodeRetrieverTest {
                 "demo-project/shashi.yml",
                 "https://github.com/oweise/shapeshifter-prototype.git",
                 "master",
-                "8d5e5d7b956b887554d6db002c9b1a30991829a0"
+                "36c18a7cb130cf769677a503432d722e4f178fb1"
         );
 
         String expectedCode = new String(

@@ -1,11 +1,13 @@
 package de.bannkreis.shapeshifter.driver;
 
 import de.bannkreis.shapeshifter.driver.frontend.entities.JobStartResponse;
-import de.bannkreis.shapeshifter.driver.jobengine.JobManager;
-import de.bannkreis.shapeshifter.driver.jobengine.RunningJobsManager;
+import de.bannkreis.shapeshifter.driver.jobengine.JobsService;
+import de.bannkreis.shapeshifter.driver.jobengine.JobRunService;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -36,16 +39,25 @@ public class DriverApplicationTests {
 	private int port;
 
 	@MockBean
-	private RunningJobsManager runningJobsManager;
+	private JobRunService jobRunService;
 
 	@Autowired
 	private TestRestTemplate testRestTemplate;
 
 	@Autowired
-	private JobManager jobManager;
+	private JobsService jobsService;
 
 	@Test
 	public void contextLoads() {
+	}
+
+	@BeforeClass
+	public static void setupClass() {
+		System.setProperty("storagepath.jobs", "jetstreamdb/jobs");
+		File storageDir = new File("jetstreamdb/jobs");
+		if (storageDir.exists()) {
+			storageDir.delete();
+		}
 	}
 
 	@Before
@@ -54,8 +66,13 @@ public class DriverApplicationTests {
 	    job.setName("thatjob");
 	    job.setGitUrlPattern("\\Qhttps://github.com/oweise/shapeshifter-prototype.git\\E");
 	    job.setGitRefPattern("\\Qrefs/heads/master\\E");
-	    jobManager.addJob(job);
-    }
+	    jobsService.addJob(job);
+	}
+
+	@AfterClass
+    public static void shutdown() {
+		System.clearProperty("storagepath.jobs");
+	}
 
 	@Test
 	public void shouldScheduleJob() throws URISyntaxException, IOException {
@@ -76,7 +93,7 @@ public class DriverApplicationTests {
 		assertNotNull(response.getBody().getNewJobRunIds());
 		JobRun expectedJobRun = new JobRun(UUID.randomUUID(), "https://github.com/oweise/shapeshifter-prototype.git",
 				"refs/heads/master", "da1560886d4f094c3e6c9ef40349f7d38b5d27d7");
-		Mockito.verify(runningJobsManager).addJobRun(Mockito.eq(expectedJobRun));
+		Mockito.verify(jobRunService).addJobRun(Mockito.eq(expectedJobRun));
 
 
 	}

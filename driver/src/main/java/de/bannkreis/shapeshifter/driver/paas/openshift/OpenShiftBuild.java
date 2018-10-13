@@ -10,6 +10,10 @@ import java.util.UUID;
 
 public class OpenShiftBuild implements PaasBuild {
 
+    public BuildConfig getBuildConfig() {
+        return buildConfig;
+    }
+
     public OpenShiftBuild(BuildConfig buildConfig, Build lastBuild) {
         this.buildConfig = buildConfig;
         this.lastBuild = lastBuild;
@@ -38,6 +42,10 @@ public class OpenShiftBuild implements PaasBuild {
         else {
             return OpenShiftBuildPhase.valueOf(lastBuild.getStatus().getPhase()).getPaasBuildState();
         }
+    }
+
+    public Build getLastBuild() {
+        return lastBuild;
     }
 
     private final BuildConfig buildConfig;

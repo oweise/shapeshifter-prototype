@@ -17,16 +17,17 @@ import java.io.IOException;
 public class BuildDefinitionRetriever {
 
     private final GitSingleFileCodeRetriever gitSingleFileCodeRetriever;
-    private final JobManager jobManager;
+    private final JobsService jobsService;
 
-    public BuildDefinitionRetriever(GitSingleFileCodeRetriever gitSingleFileCodeRetriever, JobManager jobManager) {
-        this.jobManager = jobManager;
+    public BuildDefinitionRetriever(GitSingleFileCodeRetriever gitSingleFileCodeRetriever, JobsService jobsService) {
+        this.jobsService = jobsService;
         this.gitSingleFileCodeRetriever = gitSingleFileCodeRetriever;
     }
 
     public BuildDefinition retrieveBuildDefinition(JobRun jobRun) throws IOException, GitAPIException {
 
-        Job job = jobManager.getJob(jobRun.getJobId());
+        Job job = jobsService.getJob(jobRun.getJobId())
+                .orElseThrow(()->new IllegalArgumentException());
 
         String buildDefinitionCode = this.gitSingleFileCodeRetriever.retrieveCode(
                 job.getBuildFilePath(),
