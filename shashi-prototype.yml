@@ -1,0 +1,273 @@
+apiVersion: v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: shashi-prototype
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      app: shapeshifter
+    name: shapeshifter
+  spec:
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: shapeshifter:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: driver
+      git:
+        ref: master
+        uri: https://github.com/oweise/shapeshifter-prototype.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: redhat-openjdk18-openshift:1.2
+          namespace: openshift
+        incremental: true
+      type: Source
+    triggers:
+    - imageChange: {}
+      type: ImageChange
+    - type: ConfigChange
+    - generic:
+        secret: 5956dfac86762dab
+      type: Generic
+    - github:
+        secret: a4f7c11d4b9aa400
+      type: GitHub
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: shapeshifter-prototype
+    name: shapeshifter-buildimage
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: shapeshifter-buildimage:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      contextDir: buildimage
+      git:
+        ref: master
+        uri: https://github.com/oweise/shapeshifter-prototype.git
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: centos:latest
+      type: Docker
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: Ynu-ARnqafIc8ES5tDXh
+      type: GitHub
+    - generic:
+        secret: s8nph_rzTMPqUYK1ThLS
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: shapeshifter-prototype
+    name: centos
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations:
+        openshift.io/imported-from: centos
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/shashi-prototype/centos:latest
+      generation: 4
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      app: shapeshifter
+    name: shapeshifter
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/shashi-prototype/shapeshifter:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: shapeshifter-prototype
+    name: shapeshifter-buildimage
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/shashi-prototype/shapeshifter-buildimage:latest
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: shapeshifter-prototype
+    name: shapeshifter-prototype
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: 172.30.1.1:5000/shashi-prototype/shapeshifter-prototype:latest
+      generation: 2
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: Source
+- apiVersion: v1
+  kind: DeploymentConfig
+  metadata:
+    labels:
+      app: shapeshifter
+    name: shapeshifter
+  spec:
+    replicas: 1
+    selector:
+      deploymentconfig: shapeshifter
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: shapeshifter
+          deploymentconfig: shapeshifter
+      spec:
+        containers:
+        - env:
+          - name: JAVA_DEBUG
+            value: "true"
+          - name: JAVA_DEBUG_SUSPEND
+            value: "true"
+          - name: STORAGEPATH_JOBS
+            value: /persistence/jetstreamdb/jobstorage
+          image: 172.30.1.1:5000/shashi-prototype/shapeshifter@sha256:387da076bd9edfa2c6d56f0f4b626c2955514662f5ec70cdd57ae52c0bfcbb87
+          imagePullPolicy: Always
+          name: shapeshifter
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+          - containerPort: 8443
+            protocol: TCP
+          - containerPort: 8778
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /persistence
+            name: volume-weldw
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+        volumes:
+        - name: volume-weldw
+          persistentVolumeClaim:
+            claimName: shashi-persistence
+    test: false
+    triggers:
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - shapeshifter
+        from:
+          kind: ImageStreamTag
+          name: shapeshifter:latest
+          namespace: shashi-prototype
+      type: ImageChange
+    - type: ConfigChange
+- apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: shashi-persistence
+  spec:
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 100Mi
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: shapeshifter
+    name: shapeshifter
+  spec:
+    ports:
+    - name: 8080-tcp
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: shapeshifter
+    sessionAffinity: None
+    type: ClusterIP
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      app: shapeshifter
+    name: shapeshifter
+  spec:
+    port:
+      targetPort: 8080-tcp
+    to:
+      kind: Service
+      name: shapeshifter
+      weight: 100
+    wildcardPolicy: None
