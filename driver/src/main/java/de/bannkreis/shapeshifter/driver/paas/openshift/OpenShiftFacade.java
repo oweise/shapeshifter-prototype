@@ -1,5 +1,7 @@
 package de.bannkreis.shapeshifter.driver.paas.openshift;
 
+import de.bannkreis.shapeshifter.driver.jobengine.JobsManager;
+import de.bannkreis.shapeshifter.driver.jobengine.entities.Job;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRunState;
 import de.bannkreis.shapeshifter.driver.paas.PaasBuild;
@@ -32,9 +34,14 @@ public class OpenShiftFacade implements PaasFacade {
 
     private final OpenShiftInformationReader openShiftInformationReader;
 
-    public OpenShiftFacade(OpenShiftClientProvider openShiftClientProvider, OpenShiftInformationReader openShiftInformationReader) throws IOException {
+    private final JobsManager jobManager;
+
+    public OpenShiftFacade(OpenShiftClientProvider openShiftClientProvider,
+                           OpenShiftInformationReader openShiftInformationReader,
+                           JobsManager jobManager) throws IOException {
         this.openShiftClientProvider = openShiftClientProvider;
         this.openShiftInformationReader = openShiftInformationReader;
+        this.jobManager = jobManager;
     }
 
     @Override
@@ -77,9 +84,26 @@ public class OpenShiftFacade implements PaasFacade {
 
         OpenShiftClient osClient = openShiftClientProvider.createClient(openShiftInformation);
 
-        String buildStepName = String.format("shashi-build-%s-%s",
-                jobRun.getJobId().toString(), jobRun.getId().toString());
+        Job job = jobManager.getJob(jobRun.getJobId())
+                .orElseThrow(()->new IllegalArgumentException("Unknown job id on job run: "
+                        + jobRun.getJobId().toString()));
 
+        String buildStepName = String.format("shashi-build-%s-%s-%s",
+                job.getName(), jobRun.getState().getBuildStepName(), jobRun.getShortGitCommit()).toLowerCase();
+
+        String outputImageName = String.format("%s:latest", buildStepName);
+
+        // Create output image stream
+        ImageStream is = osClient.imageStreams().withName(buildStepName).get();
+        if (is == null) {
+            is = osClient.imageStreams().createNew()
+                    .withNewMetadata()
+                    .withName(buildStepName)
+                    .endMetadata()
+                    .done();
+        }
+
+        // Create build config
         SourceBuildStrategy sourceBuildStrategy = new SourceBuildStrategyBuilder()
                 .withFrom(
                         new ObjectReferenceBuilder()
@@ -91,8 +115,6 @@ public class OpenShiftFacade implements PaasFacade {
         BuildStrategy buildStrategy = new BuildStrategyBuilder()
                 .withSourceStrategy(sourceBuildStrategy)
                 .build();
-
-        String outputImageName = String.format("%s:latest", buildStepName);
 
         BuildOutput buildOutput = new BuildOutputBuilder()
                 .withNewTo()

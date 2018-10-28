@@ -1,5 +1,6 @@
 package de.bannkreis.shapeshifter.driver.jobengine;
 
+import de.bannkreis.shapeshifter.driver.InternalErrorException;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.BuildDefinition;
 import de.bannkreis.shapeshifter.driver.jobengine.entities.JobRun;
 import de.bannkreis.shapeshifter.driver.paas.PaasBuild;
@@ -31,13 +32,14 @@ public class JobRunProcessor {
             jobRun.setBuildDefinition(buildDefinitionRetriever.retrieveBuildDefinition(jobRun));
         }
 
+        // Initialize the build step name
         if (jobRun.getState().getBuildStepName() == null) {
             jobRun.getState().setBuildStepName(jobRun.getBuildDefinition().getBuildSteps().get(0).getName());
         }
 
-        // Search for a OS build entity
-        Optional<PaasBuild> paasBuildOpt = paasFacade.getBuild(jobRun, jobRun.getState());
-        PaasBuild paasBuild = paasBuildOpt.orElse(paasFacade.createBuild(jobRun));
+        // Search for an OS build entity
+        PaasBuild paasBuild = paasFacade.getBuild(jobRun, jobRun.getState())
+                .orElseGet(InternalErrorException.handle(()->paasFacade.createBuild(jobRun)));
 
         switch (paasBuild.getBuildState()) {
 
