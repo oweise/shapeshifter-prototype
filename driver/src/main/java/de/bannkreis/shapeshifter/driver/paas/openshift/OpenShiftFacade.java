@@ -77,7 +77,6 @@ public class OpenShiftFacade implements PaasFacade {
     }
 
     @Override
-
     public PaasBuild createBuild(JobRun jobRun) throws IOException {
 
         OpenShiftInformation openShiftInformation = openShiftInformationReader.readOpenShiftInformation();
